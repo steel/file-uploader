@@ -265,7 +265,7 @@ qq.FileUploaderBasic = function(o){
         // return false to cancel submit
         onSubmit: function(id, fileName){},
         onProgress: function(id, fileName, loaded, total){},
-        onComplete: function(id, fileName, responseJSON){},
+        onComplete: function(id, fileName, response){},
         onCancel: function(id, fileName){},
         // messages                
         messages: {
@@ -1009,7 +1009,7 @@ qq.extend(qq.UploadHandlerForm.prototype, {
         this._attachLoadEvent(iframe, function(){                                 
             self.log('iframe loaded');
             
-            var response = self._getIframeContentJSON(iframe);
+            var response = self._getIframeContent(iframe);
 
             self._options.onComplete(id, fileName, response);
             self._dequeue(id);
@@ -1050,23 +1050,16 @@ qq.extend(qq.UploadHandlerForm.prototype, {
         });
     },
     /**
-     * Returns json object received by iframe from server.
+     * Returns content received by iframe from server.
      */
-    _getIframeContentJSON: function(iframe){
+    _getIframeContent: function(iframe){
         // iframe.contentWindow.document - for IE<7
         var doc = iframe.contentDocument ? iframe.contentDocument: iframe.contentWindow.document,
             response;
         
-        this.log("converting iframe's innerHTML to JSON");
         this.log("innerHTML = " + doc.body.innerHTML);
                         
-        try {
-            response = eval("(" + doc.body.innerHTML + ")");
-        } catch(err){
-            response = {};
-        }        
-
-        return response;
+        return doc.body.innerHTML;
     },
     /**
      * Creates iframe with unique name
@@ -1212,22 +1205,14 @@ qq.extend(qq.UploadHandlerXhr.prototype, {
         
         this._options.onProgress(id, name, size, size);
                 
-        if (xhr.status == 200){
+        if (xhr.status == 200 || xhr.status == 201){
             this.log("xhr - server response received");
             this.log("responseText = " + xhr.responseText);
                         
-            var response;
-                    
-            try {
-                response = eval("(" + xhr.responseText + ")");
-            } catch(err){
-                response = {};
-            }
-            
-            this._options.onComplete(id, name, response);
+            this._options.onComplete(id, name, xhr.responseText);
                         
         } else {                   
-            this._options.onComplete(id, name, {});
+            this._options.onComplete(id, name, "");
         }
                 
         this._files[id] = null;
