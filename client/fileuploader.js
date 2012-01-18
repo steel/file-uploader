@@ -801,6 +801,7 @@ qq.UploadButton.prototype = {
                 
         input.setAttribute("type", "file");
         input.setAttribute("name", this._options.name);
+        input.setAttribute("tabIndex", "-1");        
         
         qq.css(input, {
             position: 'absolute',
