@@ -801,7 +801,7 @@ qq.UploadButton.prototype = {
                 
         input.setAttribute("type", "file");
         input.setAttribute("name", this._options.name);
-        input.setAttribute("tabIndex", "-1");        
+        input.setAttribute("tabIndex", "-1");
         
         qq.css(input, {
             position: 'absolute',
@@ -962,7 +962,9 @@ qq.extend(qq.UploadHandlerForm.prototype, qq.UploadHandlerAbstract.prototype);
 
 qq.extend(qq.UploadHandlerForm.prototype, {
     add: function(fileInput){
-        fileInput.setAttribute('name', 'qqfile');
+        // SF - 1/13/2012 - This really should be configurable
+        // fileInput.setAttribute('name', 'qqfile');
+        fileInput.setAttribute('name', 'data');
         var id = 'qq-upload-handler-iframe' + qq.getUniqueId();       
         
         this._inputs[id] = fileInput;
@@ -1059,8 +1061,16 @@ qq.extend(qq.UploadHandlerForm.prototype, {
             response;
         
         this.log("innerHTML = " + doc.body.innerHTML);
-                        
-        return doc.body.innerHTML;
+        
+        var response = doc.body.innerHTML;
+        
+        //IE wraps plain text responses in <pre> tag
+        if (response.slice(0, 5).toLowerCase() == '<pre>' && response.slice(-6).toLowerCase() == '</pre>') {
+          //Characters in <pre> may be encoded as HTML entities (e.g. &amp;)
+          response = qq.htmlDec(response.slice(5, -6));
+        }                        
+
+        return response;
     },
     /**
      * Creates iframe with unique name
