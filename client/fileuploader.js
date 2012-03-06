@@ -111,6 +111,21 @@ qq.toElement = (function(){
     };
 })();
 
+/**
+ * Decodes HTML encoded string
+ */
+qq.htmlDec = (function(){
+    var textarea = document.createElement('textarea');
+    return function(html){
+        var decoded = html;
+        try {
+            textarea.innerHTML = html;
+            decoded = textarea.value;
+        } catch(e) {}
+        return decoded;
+    };
+})();
+
 //
 // Node properties and attributes
 
